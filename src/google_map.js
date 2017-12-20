@@ -10,6 +10,7 @@ import MarkerDispatcher from './marker_dispatcher';
 import GoogleMapMap from './google_map_map';
 import GoogleMapMarkers from './google_map_markers';
 import GoogleMapMarkersPrerender from './google_map_markers_prerender';
+import * as GoogleHeatmap from './google_heatmap';
 
 import googleMapLoader from './utils/loaders/google_map_loader';
 import detectBrowser from './utils/detect';
@@ -74,6 +75,7 @@ const _checkMinZoom = (zoom, minZoom) => {
 };
 
 export default class GoogleMap extends Component {
+
   static propTypes = {
     apiKey: PropTypes.string,
     bootstrapURLKeys: PropTypes.any,
@@ -141,6 +143,7 @@ export default class GoogleMap extends Component {
       position: 'relative',
     },
     layerTypes: [],
+    heatmap: {},
   };
 
   static googleMapLoader = googleMapLoader; // eslint-disable-line
@@ -154,6 +157,7 @@ export default class GoogleMap extends Component {
     this.map_ = null;
     this.maps_ = null;
     this.prevBounds_ = null;
+    this.heatmap = null;
 
     this.layers_ = {};
 
@@ -503,6 +507,13 @@ export default class GoogleMap extends Component {
           center: new maps.LatLng(centerLatLng.lat, centerLatLng.lng),
         };
 
+        // Start Heatmap
+        Object.assign(this, {
+          heatmap: GoogleHeatmap.generateHeatmap(maps, this.props.heatmap),
+        });
+        GoogleHeatmap.optionsHeatmap(this.heatmap, this.props.heatmap);
+        // End Heatmap
+
         // prevent to exapose full api
         // next props must be exposed (console.log(Object.keys(pick(maps, isPlainObject))))
         // "Animation", "ControlPosition", "MapTypeControlStyle", "MapTypeId",
@@ -639,6 +650,7 @@ export default class GoogleMap extends Component {
         this.overlay_ = overlay;
 
         overlay.setMap(map);
+        this.heatmap.setMap(map);
 
         maps.event.addListener(map, 'zoom_changed', () => {
           // recalc position at zoom start
