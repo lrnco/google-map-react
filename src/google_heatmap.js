@@ -3,8 +3,6 @@ import fp from 'lodash/fp';
 export const generateHeatmap = (instance, {
     positions
   }) => {
-    console.log(instance);
-    console.log(positions);
     return new instance.visualization.HeatmapLayer({
         data: fp.reduce(
           (acc, {
